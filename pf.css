@@ -3,12 +3,16 @@
     background-color: #292b2c;
 }
 
-.navbar {
-    border-radius: 0 !important;
-    margin-bottom: 0 !important;
+.container { /*removing bootstrap defaults*/
+    margin: 0px !important;
+  }
+
+#classtabs .fightertext.active {
+    background-color: #a1887f;
+
 }
 
-#fightertabtext {
+.fightertext {
     color: #f7f7f7;
     background-color: #795548;
 }
