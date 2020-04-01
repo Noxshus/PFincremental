@@ -1,0 +1,14 @@
+* {
+    color: #f7f7f7;
+    background-color: #292b2c;
+}
+
+.navbar {
+    border-radius: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+#fightertabtext {
+    color: #f7f7f7;
+    background-color: #795548;
+}
