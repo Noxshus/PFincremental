@@ -4,8 +4,9 @@ function FighterTask(_task)
     data.fighterTask = setInterval(_task, 1000);
 }
 
-function MenialErrand()
+function ManualLabour()
 {
     data.money[0] = data.money[0] + 1; //1 copper
-    update("copper", data.money[0]);
+    GainExperience("fighter", "athletics", 1);
+    Update("copper", data.money[0]);
 }

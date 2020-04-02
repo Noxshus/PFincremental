@@ -5,7 +5,25 @@
 
 .container { /*removing bootstrap defaults*/
     margin: 0px !important;
-  }
+}
+
+.progress.attributes {
+    height: 5px;
+    width: 150px;
+}
+
+.progress.skills{
+    height: 5px;
+    width: 150px;
+}
+
+.progress-bar.attributes {
+    height: 5px;
+}
+
+.progress-bar.skills {
+    height: 5px;
+}
 
 #classtabs .fightertext.active {
     background-color: #a1887f;
