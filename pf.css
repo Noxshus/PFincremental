@@ -7,27 +7,60 @@
     margin: 0px !important;
 }
 
-.progress.attributes {
+.progress.health {
+    height: 5px;
+    width: 150px;
+    background-color: #d9534f;
+}
+
+.progress.stamina {
     height: 5px;
     width: 150px;
 }
 
-.progress.skills{
-    height: 5px;
+.progress.attributes {
+    height: 2px;
     width: 150px;
+}
+
+.progress-bar.health {
+    height: 5px;
+    background-color: #5cb85c;
+}
+
+.progress-bar.stamina {
+    height: 5px;
+    background-color: #f0ad4e;
 }
 
 .progress-bar.attributes {
-    height: 5px;
+    height: 2px;
 }
 
-.progress-bar.skills {
-    height: 5px;
+.tab-pane {
+    padding: 10px;
+}
+
+.tickerv-wrap {
+    box-sizing: content-box;
+    height: 100px;
+    overflow-y: scroll;
+    padding: 10px;
+} 
+
+.tickerv-wrap ul {
+    padding:0;
+    margin:0;
+    list-style-type: none;
+}
+
+.tickerv-wrap ul li {
+    font-size:14px;
+    line-height: 26px
 }
 
 #classtabs .fightertext.active {
     background-color: #a1887f;
-
 }
 
 .fightertext {
