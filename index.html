@@ -110,12 +110,13 @@
                         <div>Thievery: <span id="fighterthievery">Untrained</span></div>
                     </div>
                     <div class="col"> <!--Buttons & Ticker-->
-                        <button data-toggle="tooltip" data-html="true" title="<div style='font-style:italic;'>+athlethics, +copper</div> &nbsp Simple, backbreaking work for little pay." type="button" class="btn fightertext" onclick="FighterTask(TaskFarmLabour)">Farm Labour</button>
+                        <button data-toggle="tooltip" data-html="true" title="<div style='font-style:italic;'>+stamina</div>Take a load off and recover your stamina." type="button" class="btn fightertext" onclick="FighterTask('Rest(&quot;fighter&quot;)')">Rest</button>
+                        <button data-toggle="tooltip" data-html="true" title="<div style='font-style:italic;'>+strengthXP, +copper</div>Simple, backbreaking work for little pay. Uses Athletics." type="button" class="btn fightertext" onclick="FighterTask(TaskFarmLabour)">Farm Labour</button>
                         <button type="button" class="btn fightertext" onclick="DevIncreaseStrengthXpFighter()">DEV: Strength+XP</button>
                     </div>
                     <div class="col">
                         <div id="fighterticker" class="tickerv-wrap">
-                            <ul>
+                            <ul id="fightertickertext">
                                 <li>You're a nobody with nothing to your name.</li>
                                 <li>Better hit the fields.</li>
                                 <li>You'll need some money by the end of the day to pay for your room & food.</li>

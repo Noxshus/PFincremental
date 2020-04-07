@@ -5,7 +5,7 @@ var data = { //saved between sessions
 }
 
 var global = { //only used in this session
-    fighterTask: "",
+    fighter: new GlobalCharacter(),
 }
 
 function Character(_class, _ancestry, _background, _health)
@@ -20,6 +20,7 @@ function Character(_class, _ancestry, _background, _health)
     this.stamina = _health;
     this.attributes = new CharacterAttributes();
     this.skills = new CharacterSkills();
+    this.restQuality = 1; //this should be dictated by accomodation
     //this.skillold(_acrobatics, _arcana, _athletics, _crafting, _deception, _diplomacy, _intimidation, _lore, _medicine, _nature, _occultisim, _performance, _religion, _society, _stealth, _survival, _thievery)
 }
 
@@ -70,32 +71,11 @@ function Skill(_name)
     this.xpToLevel = 100;
 }
 
-function Update(_id, _content) 
+function GlobalCharacter() //used to consolidate some attributes, used only in the global var (not saved between sessions)
 {
-    document.getElementById(_id).innerHTML = _content;
+    this.tickerLength = 0;
+    this.task = 0;
 }
-
-function UpdateWidth(_id, _content)
-{
-    document.getElementById(_id).style.width = _content;
-}
-
-/*function GainSkillExperience(_character, _skill, _xpGained)
-{   //data[blabla] is a dynamic reference since we're passing the NAME of the property, not the actual object
-    data[_character].skills[_skill].xp = data[_character].skills[_skill].xp + _xpGained;
-    let _numberOfLevelUps = CheckForLevelUp(data[_character].skills[_skill].xp, data[_character].skills[_skill].level, data[_character].skills[_skill].xpToLevel, "skill")
-    if (_numberOfLevelUps > 0)
-    {
-        for (i = 0; i < _numberOfLevelUps; i++)
-        {
-            LevelUp(_character, _skill);
-        }
-    }
-
-    //Update((data[_character].class + data[_character].skills[_skill].name + "xp"), data[_character].skills[_skill].xp);
-    let _percent = (data[_character].skills[_skill].xp / data[_character].skills[_skill].xpToLevel) * 100;
-    UpdateWidth((data[_character].class + data[_character].skills[_skill].name + "xp"), _percent + "%");
-}*/
 
 function GainAttributeExperience(_character, _attribute, _xpGained)
 {
@@ -105,13 +85,11 @@ function GainAttributeExperience(_character, _attribute, _xpGained)
     {
         for (i = 0; i < _numberOfLevelUps; i++)
         {
-            LevelUp(_character, _attribute);
+            GainLevel(_character, _attribute);
         }
     }
 
-    //Update((data[_character].class + data[_character].attributes[_attribute].name + "xp"), data[_character].attributes[_attribute].xp);
-    let _percent = (data[_character].attributes[_attribute].xp / data[_character].attributes[_attribute].xpToLevel) * 100;
-    UpdateWidth((data[_character].class + data[_character].attributes[_attribute].name + "xpprogress"), _percent + "%");
+    UpdatePercentWidth((data[_character].class + data[_character].attributes[_attribute].name + "xpprogress"), data[_character].attributes[_attribute].xp, data[_character].attributes[_attribute].xpToLevel);
 }
 
 function CheckForLevelUp(_xp, _level, _xpToLevel, _type) //returns the number of levels gained (can be more than 1 if enough xp is earned at once)
@@ -127,12 +105,36 @@ function CheckForLevelUp(_xp, _level, _xpToLevel, _type) //returns the number of
     return _numberOfLevelUps;
 }
 
-function LevelUp(_character, _attribute)
+function GainLevel(_character, _attribute)
 {
     data[_character].attributes[_attribute].level++;
     data[_character].attributes[_attribute].xp = data[_character].attributes[_attribute].xp - data[_character].attributes[_attribute].xpToLevel;
     data[_character].attributes[_attribute].xpToLevel = GrowthCurve("attribute", data[_character].attributes[_attribute].level);
     Update((data[_character].class + data[_character].attributes[_attribute].name), data[_character].attributes[_attribute].level);
+}
+
+//Stamina 
+
+function ReduceStamina(_class, _cost)
+{
+    if (data[_class].stamina >= _cost)
+    {
+        data[_class].stamina = data[_class].stamina - _cost;
+        Update(_class + "staminatext", data[_class].stamina);
+        UpdatePercentWidth(_class + "stamina", data[_class].stamina, data[_class].staminaMax);
+        return true;
+    }
+    return false;
+}
+
+function Rest(_class) //should be called by the respective class task function & looped
+{
+    if (data[_class].stamina < data[_class].staminaMax)
+    {
+        data[_class].stamina = data[_class].stamina + data[_class].restQuality;
+        Update(_class + "staminatext", data[_class].stamina);
+        UpdatePercentWidth(_class + "stamina", data[_class].stamina, data[_class].staminaMax);
+    }
 }
 
 //Rolls
@@ -213,7 +215,7 @@ function RollD20(_numberOfRolls)
     }
 }
 
-function GetRoll() 
+function GetRoll() //returns the actual roll + the modifiers in an object
 {
     return {
         roll: GetRollValue(),
@@ -223,6 +225,36 @@ function GetRoll()
 }
 
 //Misc
+
+function Update(_id, _content) 
+{
+    document.getElementById(_id).innerHTML = _content;
+}
+
+function UpdatePercentWidth(_id, _numerator, _denominator) //used by progress bars mainly / assuming we're using base 100 for the %
+{
+    let _percent = (_numerator / _denominator) * 100;
+    document.getElementById(_id).style.width = _percent + "%";
+}
+
+function UpdateTicker(_class, _text)
+{
+    let _node = document.createElement("LI"); 
+    let _textNode = document.createTextNode(_text);
+    _node.appendChild(_textNode);
+    document.getElementById(_class + "tickertext").appendChild(_node);
+
+    document.getElementById(_class + "ticker").scrollTop = document.getElementById(_class + "ticker").scrollHeight; //scrolls to the top when adding a new element
+
+    if (global[_class].tickerLength < 100) //limit the size of ticker. Crude implementation using a counter
+    {
+        global[_class].tickerLength++;
+    }
+    else
+    {
+        document.getElementById(_class + "tickertext").removeChild(document.getElementById(_class + "tickertext").children[0]);
+    }
+}
 
 function RandomInteger(min, max) //https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
 {
@@ -244,6 +276,5 @@ function DevIncreaseStrengthXpFighter()
 {
     data.fighter.attributes.strength.xp = data.fighter.attributes.strength.xp + 99;
 
-    let _percent = (data.fighter.attributes.strength.xp / data.fighter.attributes.strength.xpToLevel) * 100;
-    UpdateWidth((data.fighter.class + data.fighter.attributes.strength.name + "xpprogress"), _percent + "%");
+    UpdatePercentWidth((data.fighter.class + data.fighter.attributes.strength.name + "xpprogress"), data.fighter.attributes.strength.xp, data.fighter.attributes.strength.xpToLevel);
 }
