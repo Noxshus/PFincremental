@@ -1,5 +1,6 @@
 var data = { //saved between sessions
     money: [0, 0, 0, 0], //copper, silver, gold, platinum
+    event: [], //used to bank events, which the player can access at their discretion
 
     fighter: new Character ("fighter", "", "", 8),
 }
@@ -113,6 +114,35 @@ function GainLevel(_character, _attribute)
     Update((data[_character].class + data[_character].attributes[_attribute].name), data[_character].attributes[_attribute].level);
 }
 
+//Tasks
+
+function Task(_class, _difficultyClass, _staminaCost, _skill, _attribute, _moneyReward, _attributeXP, _successText, _failureText, _taskName)
+{ //scalable task for individual class tasks - special handling can go into the specific functions instead
+    if (ReduceStamina(_class, 1) == true)
+    {
+        let {_result, _roll, _skillModifier, _attributeModifier, _totalRoll} = SkillCheck(_difficultyClass, data[_class].skills[_skill].level, data[_class].attributes[_attribute].level);
+
+        if (_result == true)
+        {
+            data.money[0] = data.money[0] + _moneyReward;
+            GainAttributeExperience(_class, _attribute, 1);
+            UpdateTicker(_class, ("Rolled: "  + _roll + " + " + _skillModifier + " + " + _attributeModifier + " = " + _totalRoll + " vs " + _difficultyClass + ". " + _successText));
+        }
+        else
+        {
+            UpdateTicker(_class, ("Rolled: "  + _roll + " + " + _skillModifier + " + " + _attributeModifier + " = " + _totalRoll + " vs " + _difficultyClass + ". " + _failureText));
+        }
+
+        Update("copper", data.money[0]);
+    }
+    else
+    {
+        UpdateTicker(_class, ("You're too tired to work."));
+        let _functionName = _class.capitalize() + "Task";
+        window[_functionName]("Rest('" + _class + "'," + _taskName + ")"); //Rest automatically after running out of stamina - note that there's a single ' inside the "". Not 100% sure why, but JS didn't seem to be sending the contents of _class as a string
+    }
+}
+
 //Stamina 
 
 function ReduceStamina(_class, _cost)
@@ -127,13 +157,27 @@ function ReduceStamina(_class, _cost)
     return false;
 }
 
-function Rest(_class) //should be called by the respective class task function & looped
+function Rest(_class, _previousTask) //should be called by the respective class task function & looped. If called with a previous task, it'll restart that when finishing
 {
     if (data[_class].stamina < data[_class].staminaMax)
     {
         data[_class].stamina = data[_class].stamina + data[_class].restQuality;
         Update(_class + "staminatext", data[_class].stamina);
         UpdatePercentWidth(_class + "stamina", data[_class].stamina, data[_class].staminaMax);
+        UpdateTicker(_class, ("Zzzz..."));
+    }
+    else
+    {
+        UpdateTicker(_class, ("You're good to go."));
+        if (_previousTask != "") //only should be "" is player called it by clicking the button, otherwise we should be provided with the previous task name, so we can return to it once rest is complete
+        {
+            let _functionName = _class.capitalize() + "Task"; //Need to caps the _class because naming convention functions start in caps
+            window[_functionName](_previousTask); //referencing the function by its name, sending back the previous task as parameter
+        }
+        else
+        {
+            clearInterval(global[_class].task);
+        }
     }
 }
 
@@ -146,7 +190,9 @@ function SkillCheck(_difficulty, _skillLevel, _attribute)
     const _attributeModifier = ReturnModifierAttribute(_attribute);
     let _result = false;
 
-    if ((_roll + _skillModifier + _attributeModifier) >= _difficulty)
+    const _totalRoll = _roll + _skillModifier + _attributeModifier
+
+    if (_totalRoll >= _difficulty)
     {
         _result = true;
     }
@@ -155,7 +201,7 @@ function SkillCheck(_difficulty, _skillLevel, _attribute)
         _result = false;
     }
 
-    return {_result, _roll, _skillModifier, _attributeModifier};
+    return {_result, _roll, _skillModifier, _attributeModifier, _totalRoll};
 }
 
 function ReturnModifierAttribute(_number)
@@ -215,14 +261,22 @@ function RollD20(_numberOfRolls)
     }
 }
 
-function GetRoll() //returns the actual roll + the modifiers in an object
+function RollD100(_numberOfRolls) //for percentiles - this was traditionally done using 2D10 instead, but no need in this case
+{
+    for (let i = 0; i < _numberOfRolls; i++)
+    {
+        return RandomInteger(1, 100);
+    }
+}
+
+/*function GetRoll() //returns the actual roll + the modifiers in an object
 {
     return {
         roll: GetRollValue(),
         skillModifier: GetSkillModifier(),
         attributeModifier: GetAttributeModifier(),
     };
-}
+}*/
 
 //Misc
 
@@ -268,6 +322,11 @@ function GrowthCurve(_growthType, _level) //returns the value to be USED
         case "attribute": //linear growth
             return (_level * 100) + 100; // 0 - 100, 1 - 200, 2 - 300
     }
+}
+
+String.prototype.capitalize = function() //used to capitalise the first letter of a string
+{ //https://stackoverflow.com/questions/1026069/how-do-i-make-the-first-letter-of-a-string-uppercase-in-javascript
+    return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
 //DEV FUNCTIONS
