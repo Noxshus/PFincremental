@@ -1,11 +1,13 @@
 var data = { //saved between sessions
     money: [0, 0, 0, 0], //copper, silver, gold, platinum
-    event: [], //used to bank events, which the player can access at their discretion
+    event: ["fightersword"], //used to bank events, which the player can access at their discretion
 
     fighter: new Character ("fighter", "", "", 8),
 }
 
 var global = { //only used in this session
+    eventTimer: 0, //used to prevent events from appearing all at once
+    global: new GlobalCharacter(), //used primarily for the global ticker
     fighter: new GlobalCharacter(),
 }
 
@@ -268,15 +270,6 @@ function RollD100(_numberOfRolls) //for percentiles - this was traditionally don
         return RandomInteger(1, 100);
     }
 }
-
-/*function GetRoll() //returns the actual roll + the modifiers in an object
-{
-    return {
-        roll: GetRollValue(),
-        skillModifier: GetSkillModifier(),
-        attributeModifier: GetAttributeModifier(),
-    };
-}*/
 
 //Misc
 

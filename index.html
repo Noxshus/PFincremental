@@ -10,6 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src="system.js"></script>
+    <script src="events.js"></script>
     <script src="fighter.js"></script>
 
     <script>
@@ -31,7 +32,18 @@
                     <span>C: <span id="copper">0</span></span>
                 </div>
             </div>
-            <div class="col d-flex justify-content-center">
+            <div class="col">
+                <div class="container-fluid">
+                    <div class="d-flex justify-content-center">
+                        <button id="eventsbutton" type="button" class="btn btn-secondary" onclick="EventCheck()">Event <span id="eventsbadge" class="badge badge-light">1</span></button>
+                    </div>
+                </div>
+                <div id="globalticker" class="tickerv-wrap">
+                    <ul id="globaltickertext">
+                        <li>Welcome to PF Incremental.</li>
+                    </ul>
+                </div>
+                
             </div>
             <div class="col"></div>
         </div>
@@ -122,7 +134,6 @@
                                 <li>You'll need some money by the end of the day to pay for your room & food.</li>
                             </ul>
                         </div>
-
                     </div>
                 </div>
             </div>
