@@ -1,6 +1,8 @@
 var data = { //saved between sessions
     money: [0, 0, 0, 0], //copper, silver, gold, platinum
-    event: ["fightersword"], //used to bank events, which the player can access at their discretion
+    event: [], //used to bank events, which the player can access at their discretion
+
+    flag: Array(100).fill(false),
 
     fighter: new Character ("fighter", "", "", 8),
 }
