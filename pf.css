@@ -1,6 +1,15 @@
 * {
     color: #f7f7f7;
     background-color: #292b2c;
+    font-size: 14px;
+}
+
+b { /* used in tooltips, the bold tag*/
+    background-color: #000000;
+}
+
+hr {
+    border-color: #4B515D;
 }
 
 .container { /*removing bootstrap defaults*/

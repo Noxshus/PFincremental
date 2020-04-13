@@ -10,6 +10,9 @@ function EventCheck() //should be tied to a button in the window. Will access th
             case "fightersword":
                 EventFighterSword();
                 break;
+            case "fightertraining":
+                EventFighterTraining();
+                break;
         }
     }
 }
@@ -41,14 +44,42 @@ function EventReset() //run at the end of an event to prepare for the next event
 
 function EventFighterSword() //fighter finds sword while farming
 {
-    EventDisplayText("The Nobody has tilled the earth day in and day out.");
-    EventDisplayText("The monotony often causing their mind to wander elsewhere...");
-    EventDisplayText("...with dreams of adventure, fame, glory. Times gone by...");
-    EventDisplayText("Today, however, their trance is suddenly broken.");
-    EventDisplayText("The hoe sings as iron meets not earth, but steel.");
-    EventDisplayText("The Nobody extracts an untarnished sword from the ground.");
+    EventDisplayText("Day in, day out, tilling the earth.");
+    EventDisplayText("Monotony often causing the mind to wander.");
+    EventDisplayText("Dreams of adventure, fame, glory. Times gone by...");
+    EventDisplayText("Today, however, the trance is suddenly broken.");
+    EventDisplayText("Iron meets not earth, but steel.");
+    EventDisplayText("An untarnished sword, buried in the ground.");
     EventDisplayText("It looks expensive. The grip fits like a hand-crafted glove.");
-    EventDisplayText("It feels as though it has been made for the Nobody, but that can't be right. Right...?");
+
+    setTimeout(function() {
+        data.fighter.weapon.name = "Longsword";
+        data.fighter.weapon.damageRolls = 1;
+        data.fighter.weapon.damageDice = 8;
+        data.fighter.weapon.type = "Slashing";
+        data.fighter.weapon.group = "Sword";
+        data.fighter.weapon.traits = ["Versatile (Piercing)"];
+        Update("fighterweaponname", "Longsword");
+        UpdateToolTipWeapon("fighterweapontooltip", "fighter");
+        UpdateMakeVisible("fighterbuttontrain");
+        data.flag[0] = 2;
+    }, 14000);
+
+    EventReset();
+}
+
+function EventFighterTraining() //fighter recalls past while training
+{
+    EventDisplayText("The years have been long, but memory still serves.");
+    EventDisplayText("Strike, move, stab, step, parry, riposte.");
+    EventDisplayText("The thought of returning to the fields draws a deep sigh.")
+    EventDisplayText("Yet, one must soldier on.");
+
+    setTimeout(function() {
+        Update("fighterclass", "Fighter"); //*******CONTINUE HERE */
+
+        data.flag[1] = 2;
+    }, 8000);
 
     EventReset();
 }

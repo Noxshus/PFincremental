@@ -66,9 +66,13 @@
 
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col"> <!--Character Sheet-->
+                    <div class="col-2"> <!--Character Sheet-->
                         <h4>Character</h4>
                         <div>Class: <span id="fighterclass">Nobody</span></div>
+                        <div>Level: <span id="fighterlevel">0</span></div>
+                        <div class="progress attributes">
+                            <div class="progress-bar attributes" id="fighterlevelxpprogress"></div>
+                        </div>
                         <div>Health: <span id="fighterhealthtext">8</span> / <span id="fighterhealthmaxtext">8</span></div>
                         <div class="progress health">
                             <div class="progress-bar health" id="fighterhealth" style="width: 100%;"></div>
@@ -77,6 +81,7 @@
                         <div class="progress stamina">
                             <div class="progress-bar stamina" id="fighterstamina" style="width: 100%;"></div>
                         </div>
+                        <hr>
                         <h4>Attributes</h4>
                         <div>Strength: <span id="fighterstrength">10</span></div>
                         <div class="progress attributes">
@@ -102,6 +107,7 @@
                         <div class="progress attributes">
                             <div class="progress-bar attributes" id="fightercharismaxpprogress"></div>
                         </div>
+                        <hr>
                         <h4>Skills</h4>
                         <div>Acrobatics: <span id="fighteracrobatics">Untrained</span></div>
                         <div>Arcana: <span id="fighterarcana">Untrained</span></div>
@@ -121,18 +127,24 @@
                         <div>Survival: <span id="fightersurvival">Untrained</span></div>
                         <div>Thievery: <span id="fighterthievery">Untrained</span></div>
                     </div>
-                    <div class="col"> <!--Buttons & Ticker-->
-                        <button data-toggle="tooltip" data-html="true" title="<div style='font-style:italic;'>+stamina</div>Take a load off and recover your stamina." type="button" class="btn fightertext" onclick="FighterTask('Rest(&quot;fighter&quot;)')">Rest</button>
-                        <button data-toggle="tooltip" data-html="true" title="<div style='font-style:italic;'>+strengthXP, +copper</div>Simple, backbreaking work for little pay. Uses Athletics." type="button" class="btn fightertext" onclick="FighterTask(TaskFarmLabour)">Farm Labour</button>
+                    <div id="fighterbuttons" class="col"> <!--Buttons & Ticker-->
+                        <button id="fighterbuttonrest" data-toggle="tooltip" data-html="true" title="<i>+stamina</i><br>Take a load off and recover your stamina." type="button" class="btn fightertext" onclick="FighterTask('Rest(&quot;fighter&quot;)')">Rest</button>
+                        <button id="fighterbuttonfarmlabour" data-toggle="tooltip" data-html="true" title="<i>+1 strengthXP, +1 copper</i><br>Simple, backbreaking work for little pay. Uses Athletics." type="button" class="btn fightertext" onclick="FighterTask(TaskFarmLabour)">Farm Labour</button>
+                        <button id="fighterbuttontrain" data-toggle="tooltip" data-html="true" title="<i>+5 strengthXP</i><br>Practice makes perfect. Uses Athletics." type="button" class="btn fightertext d-none" onclick="FighterTask(TaskFighterTraining)">Train</button>
                         <button type="button" class="btn fightertext" onclick="DevIncreaseStrengthXpFighter()">DEV: Strength+XP</button>
                     </div>
-                    <div class="col">
+                    <div class="col-3">
                         <div id="fighterticker" class="tickerv-wrap">
                             <ul id="fightertickertext">
                                 <li>You're a nobody with nothing to your name.</li>
                                 <li>Better hit the fields.</li>
-                                <li>You'll need some money by the end of the day to pay for your room & food.</li>
                             </ul>
+                        </div>
+                        <hr>
+                        <h4>Equipment</h4>
+                        <div>
+                            <div id="fighterweapontooltip" data-toggle="tooltip" data-html="true" data-placement="left" data-original-title="test<br>test">Weapon: <span id="fighterweaponname">None</span></div>
+                            <div>Armour: <span id="fighterarmour">None</span></div>
                         </div>
                     </div>
                 </div>

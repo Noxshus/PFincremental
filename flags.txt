@@ -1,3 +1,6 @@
 FLAGS
+1 - first stage, usually as soon as it's available, 2 - second stage, usually as soon as it's purchased/acquired
 
-0 - Fighter finds his sword
+
+0 - Fighter finds his sword. 1 -> Event available. 2 -> Event completed, sword acquired
+1 - Fighter trains. 1 - > Event available. 2 -> Event completed, gain Fighter class + level 1

@@ -2,7 +2,7 @@ var data = { //saved between sessions
     money: [0, 0, 0, 0], //copper, silver, gold, platinum
     event: [], //used to bank events, which the player can access at their discretion
 
-    flag: Array(100).fill(false),
+    flag: Array(100).fill(0),
 
     fighter: new Character ("fighter", "", "", 8),
 }
@@ -11,6 +11,13 @@ var global = { //only used in this session
     eventTimer: 0, //used to prevent events from appearing all at once
     global: new GlobalCharacter(), //used primarily for the global ticker
     fighter: new GlobalCharacter(),
+}
+
+window.onload = function() 
+{
+    Update("fighterweaponname", data.fighter.weapon.name);
+    UpdateToolTipWeapon("fighterweapontooltip", "fighter");
+    
 }
 
 function Character(_class, _ancestry, _background, _health)
@@ -26,6 +33,8 @@ function Character(_class, _ancestry, _background, _health)
     this.attributes = new CharacterAttributes();
     this.skills = new CharacterSkills();
     this.restQuality = 1; //this should be dictated by accomodation
+    this.weapon = new Weapon();
+    this.armour = new Armour();
     //this.skillold(_acrobatics, _arcana, _athletics, _crafting, _deception, _diplomacy, _intimidation, _lore, _medicine, _nature, _occultisim, _performance, _religion, _society, _stealth, _survival, _thievery)
 }
 
@@ -66,6 +75,21 @@ function CharacterSkills()
     this.stealth = new Skill("stealth");
     this.survival = new Skill("survival");
     this.thievery = new Skill("thievery");
+}
+
+function Weapon()
+{
+    this.name = "Fist";
+    this.damageRolls = 1; //meaning the 1 of the 1d4, only 1 roll of the dice
+    this.damageDice = 4; //meaning 1-4, d4
+    this.type = "Blunt"; //B - Blunt, S - Slashing, P - Piercing
+    this.group = "Brawling";
+    this.traits = ["Agile", "Finesse", "Nonlethal", "Unarmed"]; //searching an array is expensive, but no idea how else we're gonna handle this
+}
+
+function Armour()
+{
+    this.name = "None";
 }
 
 function Skill(_name)
@@ -126,26 +150,39 @@ function Task(_class, _difficultyClass, _staminaCost, _skill, _attribute, _money
     {
         let {_result, _roll, _skillModifier, _attributeModifier, _totalRoll} = SkillCheck(_difficultyClass, data[_class].skills[_skill].level, data[_class].attributes[_attribute].level);
 
-        if (_result == true)
+        if (_result == true) //succeeded the check
         {
             data.money[0] = data.money[0] + _moneyReward;
             GainAttributeExperience(_class, _attribute, 1);
-            UpdateTicker(_class, ("Rolled: "  + _roll + " + " + _skillModifier + " + " + _attributeModifier + " = " + _totalRoll + " vs " + _difficultyClass + ". " + _successText));
+            UpdateTicker(_class, ("Rolled: "  + _roll + " + " + _skillModifier + " + " + _attributeModifier + " = " + _totalRoll + " vs " + _difficultyClass + ". " + _successText), "green");
         }
-        else
+        else //failed the check
         {
-            UpdateTicker(_class, ("Rolled: "  + _roll + " + " + _skillModifier + " + " + _attributeModifier + " = " + _totalRoll + " vs " + _difficultyClass + ". " + _failureText));
+            UpdateTicker(_class, ("Rolled: "  + _roll + " + " + _skillModifier + " + " + _attributeModifier + " = " + _totalRoll + " vs " + _difficultyClass + ". " + _failureText), "red");
         }
 
         Update("copper", data.money[0]);
     }
-    else
+    else //not enough stamina
     {
         UpdateTicker(_class, ("You're too tired to work."));
         let _functionName = _class.capitalize() + "Task";
         window[_functionName]("Rest('" + _class + "'," + _taskName + ")"); //Rest automatically after running out of stamina - note that there's a single ' inside the "". Not 100% sure why, but JS didn't seem to be sending the contents of _class as a string
     }
 }
+
+//Money
+
+/*function ReduceMoney(_cost)
+{
+    if(data.money[0] >= _cost)
+    {
+        data.money[0] = data.money[0] - _cost;
+        Update("copper", data.money[0]);
+        return true;
+    }
+    return false;
+}*/
 
 //Stamina 
 
@@ -212,7 +249,7 @@ function ReturnModifierAttribute(_number)
 {
     if (_number > 10)
     {
-        return Math.floor(_number - 10); //11 = 0, 12 = 1, 13 = 1, 14 = 2
+        return Math.floor((_number - 10) / 2); //11 = 0, 12 = 1, 13 = 1, 14 = 2
     }
     else if (_number == 10)
     {
@@ -273,7 +310,25 @@ function RollD100(_numberOfRolls) //for percentiles - this was traditionally don
     }
 }
 
-//Misc
+/* //Build HTML Functions
+
+function BuildButton(_class, _buttonOnClickFunction, _buttonText)
+{
+    let _button = document.createElement("BUTTON");
+    _button.setAttribute("data-toggle", "tooltip");
+    _button.setAttribute("data-html", "true");
+    _button.type = "button";
+    element.classList.add("btn " + _class + "text");
+    _button.onclick = _buttonOnClickFunction;
+    _button.innerHTML = _buttonText;
+    
+
+    document.getElementById(_class + "buttons").appendChild(_button);
+
+    //button data-toggle="tooltip" data-html="true" title="<div style='font-style:italic;'>+stamina</div>Take a load off and recover your stamina." type="button" class="btn fightertext" onclick="FighterTask('Rest(&quot;fighter&quot;)')">Rest</button>
+}*/
+
+//Update HTML Functions
 
 function Update(_id, _content) 
 {
@@ -286,11 +341,54 @@ function UpdatePercentWidth(_id, _numerator, _denominator) //used by progress ba
     document.getElementById(_id).style.width = _percent + "%";
 }
 
-function UpdateTicker(_class, _text)
+/*function UpdateToolTipButton(_id, _cost, _description)
+{
+    document.getElementById(_id).setAttribute("data-original-title", 
+    _content);
+}*/
+
+function UpdateToolTipWeapon(_id, _class) //more specific, used to update weapon tool tips as they're generally more complex
+{
+    let _traitsString = "";
+    for (let i = 0; i < data[_class].weapon.traits.length; i++)
+    {
+        _traitsString = _traitsString + data[_class].weapon.traits[i];
+        if (i != (data[_class].weapon.traits.length - 1)) //only add a comma if we're not at the end already
+        {
+            _traitsString = _traitsString + ", "
+        }
+    }
+    document.getElementById(_id).setAttribute("data-original-title",
+        "<b>Damage: </b>" + data[_class].weapon.damageRolls + "D" + data[_class].weapon.damageDice + " " + data[_class].weapon.type + "<br>" +
+        "<b>Group: </b>" + data[_class].weapon.group + "<br>" +
+        "<b>Traits: </b>" + _traitsString
+    );
+}
+
+function UpdateMakeVisible(_id)
+{
+    document.getElementById(_id).classList.remove("d-none");
+}
+
+function UpdateTicker(_class, _text, _colour)
 {
     let _node = document.createElement("LI"); 
     let _textNode = document.createTextNode(_text);
     _node.appendChild(_textNode);
+
+    if(_colour != "")
+    {
+        switch (_colour)
+        {
+            case "green":
+                _node.style.color = "#5cb85c";
+                break;
+            case "red":
+                _node.style.color = "#d9534f";
+                break;
+        }
+    }
+
     document.getElementById(_class + "tickertext").appendChild(_node);
 
     document.getElementById(_class + "ticker").scrollTop = document.getElementById(_class + "ticker").scrollHeight; //scrolls to the top when adding a new element
@@ -304,6 +402,8 @@ function UpdateTicker(_class, _text)
         document.getElementById(_class + "tickertext").removeChild(document.getElementById(_class + "tickertext").children[0]);
     }
 }
+
+//Misc Functions
 
 function RandomInteger(min, max) //https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
 {
