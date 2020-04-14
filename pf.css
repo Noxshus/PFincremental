@@ -22,12 +22,7 @@ hr {
     background-color: #d9534f;
 }
 
-.progress.stamina {
-    height: 5px;
-    width: 150px;
-}
-
-.progress.attributes {
+.progress.experience {
     height: 2px;
     width: 150px;
 }
@@ -37,13 +32,9 @@ hr {
     background-color: #5cb85c;
 }
 
-.progress-bar.stamina {
-    height: 5px;
-    background-color: #f0ad4e;
-}
-
-.progress-bar.attributes {
+.progress-bar.experience {
     height: 2px;
+    background-color: #f0ad4e;
 }
 
 .tab-pane {
@@ -68,11 +59,11 @@ hr {
     line-height: 26px
 }
 
-#classtabs .fightertext.active {
+#charactertabs .character0text.active {
     background-color: #a1887f;
 }
 
-.fightertext {
+.character0text {
     color: #f7f7f7;
     background-color: #795548;
 }

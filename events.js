@@ -7,12 +7,7 @@ function EventCheck() //should be tied to a button in the window. Will access th
         document.getElementById("eventsbutton").disabled = true;
         switch (_event)
         {
-            case "fightersword":
-                EventFighterSword();
-                break;
-            case "fightertraining":
-                EventFighterTraining();
-                break;
+
         }
     }
 }
@@ -40,46 +35,4 @@ function EventReset() //run at the end of an event to prepare for the next event
         }, (global.eventTimer - 2000));    
     }
     global.eventTimer = 0;
-}
-
-function EventFighterSword() //fighter finds sword while farming
-{
-    EventDisplayText("Day in, day out, tilling the earth.");
-    EventDisplayText("Monotony often causing the mind to wander.");
-    EventDisplayText("Dreams of adventure, fame, glory. Times gone by...");
-    EventDisplayText("Today, however, the trance is suddenly broken.");
-    EventDisplayText("Iron meets not earth, but steel.");
-    EventDisplayText("An untarnished sword, buried in the ground.");
-    EventDisplayText("It looks expensive. The grip fits like a hand-crafted glove.");
-
-    setTimeout(function() {
-        data.fighter.weapon.name = "Longsword";
-        data.fighter.weapon.damageRolls = 1;
-        data.fighter.weapon.damageDice = 8;
-        data.fighter.weapon.type = "Slashing";
-        data.fighter.weapon.group = "Sword";
-        data.fighter.weapon.traits = ["Versatile (Piercing)"];
-        Update("fighterweaponname", "Longsword");
-        UpdateToolTipWeapon("fighterweapontooltip", "fighter");
-        UpdateMakeVisible("fighterbuttontrain");
-        data.flag[0] = 2;
-    }, 14000);
-
-    EventReset();
-}
-
-function EventFighterTraining() //fighter recalls past while training
-{
-    EventDisplayText("The years have been long, but memory still serves.");
-    EventDisplayText("Strike, move, stab, step, parry, riposte.");
-    EventDisplayText("The thought of returning to the fields draws a deep sigh.")
-    EventDisplayText("Yet, one must soldier on.");
-
-    setTimeout(function() {
-        Update("fighterclass", "Fighter"); //*******CONTINUE HERE */
-
-        data.flag[1] = 2;
-    }, 8000);
-
-    EventReset();
 }

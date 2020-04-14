@@ -4,19 +4,19 @@ var data = { //saved between sessions
 
     flag: Array(100).fill(0),
 
-    fighter: new Character ("fighter", "", "", 8),
+    character0: new Character ("fighter", "", "", 8),
 }
 
 var global = { //only used in this session
     eventTimer: 0, //used to prevent events from appearing all at once
     global: new GlobalCharacter(), //used primarily for the global ticker
-    fighter: new GlobalCharacter(),
+    character0: new GlobalCharacter(),
 }
 
 window.onload = function() 
 {
-    Update("fighterweaponname", data.fighter.weapon.name);
-    UpdateToolTipWeapon("fighterweapontooltip", "fighter");
+    Update("character0weaponname", data.character0.weapon.name);
+    UpdateToolTipWeapon("character0weapontooltip", "character0");
     
 }
 
@@ -24,12 +24,12 @@ function Character(_class, _ancestry, _background, _health)
 {
     this.class = _class;
     this.level = 1;
+    this.xp = 0;
+    this.xpToLevel = 1000;
     this.ancestry = _ancestry;
     this.background = _background;
     this.healthMax = _health; //should be dictated by ANCESTRY
     this.health = _health;
-    this.staminaMax = _health;
-    this.stamina = _health;
     this.attributes = new CharacterAttributes();
     this.skills = new CharacterSkills();
     this.restQuality = 1; //this should be dictated by accomodation
@@ -52,8 +52,6 @@ function Attribute(_name)
 {
     this.name = _name;
     this.level = 10;
-    this.xp = 0;
-    this.xpToLevel = 100;   
 }
 
 function CharacterSkills()
@@ -96,8 +94,6 @@ function Skill(_name)
 {
     this.name = _name;
     this.level = "Untrained";
-    this.xp = 0;
-    this.xpToLevel = 100;
 }
 
 function GlobalCharacter() //used to consolidate some attributes, used only in the global var (not saved between sessions)
@@ -106,7 +102,7 @@ function GlobalCharacter() //used to consolidate some attributes, used only in t
     this.task = 0;
 }
 
-function GainAttributeExperience(_character, _attribute, _xpGained)
+/*function GainAttributeExperience(_character, _attribute, _xpGained)
 {
     data[_character].attributes[_attribute].xp = data[_character].attributes[_attribute].xp + _xpGained;
     let _numberOfLevelUps = CheckForLevelUp(data[_character].attributes[_attribute].xp, data[_character].attributes[_attribute].level, data[_character].attributes[_attribute].xpToLevel, "attribute")
@@ -119,6 +115,21 @@ function GainAttributeExperience(_character, _attribute, _xpGained)
     }
 
     UpdatePercentWidth((data[_character].class + data[_character].attributes[_attribute].name + "xpprogress"), data[_character].attributes[_attribute].xp, data[_character].attributes[_attribute].xpToLevel);
+}*/
+
+function GainExperience(_character, _xpGained)
+{
+    data[_character].xp = data[_character].xp + _xpGained;
+    let _numberOfLevelUps = CheckForLevelUp(data[_character].xp, data[_character].level, data[_character].xpToLevel, "experience")
+    if (_numberOfLevelUps > 0)
+    {
+        for (i = 0; i < _numberOfLevelUps; i++)
+        {
+            GainLevel(_character);
+        }
+    }
+
+    UpdatePercentWidth((_character + "levelxpprogress"), data[_character].xp, data[_character].xpToLevel);
 }
 
 function CheckForLevelUp(_xp, _level, _xpToLevel, _type) //returns the number of levels gained (can be more than 1 if enough xp is earned at once)
@@ -134,92 +145,12 @@ function CheckForLevelUp(_xp, _level, _xpToLevel, _type) //returns the number of
     return _numberOfLevelUps;
 }
 
-function GainLevel(_character, _attribute)
+function GainLevel(_character)
 {
-    data[_character].attributes[_attribute].level++;
-    data[_character].attributes[_attribute].xp = data[_character].attributes[_attribute].xp - data[_character].attributes[_attribute].xpToLevel;
-    data[_character].attributes[_attribute].xpToLevel = GrowthCurve("attribute", data[_character].attributes[_attribute].level);
-    Update((data[_character].class + data[_character].attributes[_attribute].name), data[_character].attributes[_attribute].level);
-}
-
-//Tasks
-
-function Task(_class, _difficultyClass, _staminaCost, _skill, _attribute, _moneyReward, _attributeXP, _successText, _failureText, _taskName)
-{ //scalable task for individual class tasks - special handling can go into the specific functions instead
-    if (ReduceStamina(_class, 1) == true)
-    {
-        let {_result, _roll, _skillModifier, _attributeModifier, _totalRoll} = SkillCheck(_difficultyClass, data[_class].skills[_skill].level, data[_class].attributes[_attribute].level);
-
-        if (_result == true) //succeeded the check
-        {
-            data.money[0] = data.money[0] + _moneyReward;
-            GainAttributeExperience(_class, _attribute, 1);
-            UpdateTicker(_class, ("Rolled: "  + _roll + " + " + _skillModifier + " + " + _attributeModifier + " = " + _totalRoll + " vs " + _difficultyClass + ". " + _successText), "green");
-        }
-        else //failed the check
-        {
-            UpdateTicker(_class, ("Rolled: "  + _roll + " + " + _skillModifier + " + " + _attributeModifier + " = " + _totalRoll + " vs " + _difficultyClass + ". " + _failureText), "red");
-        }
-
-        Update("copper", data.money[0]);
-    }
-    else //not enough stamina
-    {
-        UpdateTicker(_class, ("You're too tired to work."));
-        let _functionName = _class.capitalize() + "Task";
-        window[_functionName]("Rest('" + _class + "'," + _taskName + ")"); //Rest automatically after running out of stamina - note that there's a single ' inside the "". Not 100% sure why, but JS didn't seem to be sending the contents of _class as a string
-    }
-}
-
-//Money
-
-/*function ReduceMoney(_cost)
-{
-    if(data.money[0] >= _cost)
-    {
-        data.money[0] = data.money[0] - _cost;
-        Update("copper", data.money[0]);
-        return true;
-    }
-    return false;
-}*/
-
-//Stamina 
-
-function ReduceStamina(_class, _cost)
-{
-    if (data[_class].stamina >= _cost)
-    {
-        data[_class].stamina = data[_class].stamina - _cost;
-        Update(_class + "staminatext", data[_class].stamina);
-        UpdatePercentWidth(_class + "stamina", data[_class].stamina, data[_class].staminaMax);
-        return true;
-    }
-    return false;
-}
-
-function Rest(_class, _previousTask) //should be called by the respective class task function & looped. If called with a previous task, it'll restart that when finishing
-{
-    if (data[_class].stamina < data[_class].staminaMax)
-    {
-        data[_class].stamina = data[_class].stamina + data[_class].restQuality;
-        Update(_class + "staminatext", data[_class].stamina);
-        UpdatePercentWidth(_class + "stamina", data[_class].stamina, data[_class].staminaMax);
-        UpdateTicker(_class, ("Zzzz..."));
-    }
-    else
-    {
-        UpdateTicker(_class, ("You're good to go."));
-        if (_previousTask != "") //only should be "" is player called it by clicking the button, otherwise we should be provided with the previous task name, so we can return to it once rest is complete
-        {
-            let _functionName = _class.capitalize() + "Task"; //Need to caps the _class because naming convention functions start in caps
-            window[_functionName](_previousTask); //referencing the function by its name, sending back the previous task as parameter
-        }
-        else
-        {
-            clearInterval(global[_class].task);
-        }
-    }
+    data[_character].level++;
+    data[_character].xp = data[_character].xp - data[_character].xpToLevel;
+    data[_character].xpToLevel = GrowthCurve("experience", data[_character].level);
+    Update((_character + "level"), data[_character].level);
 }
 
 //Rolls
@@ -243,6 +174,20 @@ function SkillCheck(_difficulty, _skillLevel, _attribute)
     }
 
     return {_result, _roll, _skillModifier, _attributeModifier, _totalRoll};
+}
+
+function SkillCheckAndUpdateTicker(_character, _difficultyClass, _skill, _attribute)
+{
+    let {_result, _roll, _skillModifier, _attributeModifier, _totalRoll} = SkillCheck(_difficultyClass, data[_character].skills[_skill].level, data[_character].attributes[_attribute].level);
+
+    if (_result == true) //succeeded the check
+    {
+        UpdateTicker(_character, ("Rolled: "  + _roll + " + " + _skillModifier + " + " + _attributeModifier + " = " + _totalRoll + " vs " + _difficultyClass + ". " + "Success!"), "green");
+    }
+    else //failed the check
+    {
+        UpdateTicker(_character, ("Rolled: "  + _roll + " + " + _skillModifier + " + " + _attributeModifier + " = " + _totalRoll + " vs " + _difficultyClass + ". " + "Failed!"), "red");
+    }
 }
 
 function ReturnModifierAttribute(_number)
@@ -347,20 +292,20 @@ function UpdatePercentWidth(_id, _numerator, _denominator) //used by progress ba
     _content);
 }*/
 
-function UpdateToolTipWeapon(_id, _class) //more specific, used to update weapon tool tips as they're generally more complex
+function UpdateToolTipWeapon(_id, _character) //more specific, used to update weapon tool tips as they're generally more complex
 {
     let _traitsString = "";
-    for (let i = 0; i < data[_class].weapon.traits.length; i++)
+    for (let i = 0; i < data[_character].weapon.traits.length; i++)
     {
-        _traitsString = _traitsString + data[_class].weapon.traits[i];
-        if (i != (data[_class].weapon.traits.length - 1)) //only add a comma if we're not at the end already
+        _traitsString = _traitsString + data[_character].weapon.traits[i];
+        if (i != (data[_character].weapon.traits.length - 1)) //only add a comma if we're not at the end already
         {
             _traitsString = _traitsString + ", "
         }
     }
     document.getElementById(_id).setAttribute("data-original-title",
-        "<b>Damage: </b>" + data[_class].weapon.damageRolls + "D" + data[_class].weapon.damageDice + " " + data[_class].weapon.type + "<br>" +
-        "<b>Group: </b>" + data[_class].weapon.group + "<br>" +
+        "<b>Damage: </b>" + data[_character].weapon.damageRolls + "D" + data[_character].weapon.damageDice + " " + data[_character].weapon.type + "<br>" +
+        "<b>Group: </b>" + data[_character].weapon.group + "<br>" +
         "<b>Traits: </b>" + _traitsString
     );
 }
@@ -370,7 +315,7 @@ function UpdateMakeVisible(_id)
     document.getElementById(_id).classList.remove("d-none");
 }
 
-function UpdateTicker(_class, _text, _colour)
+function UpdateTicker(_character, _text, _colour)
 {
     let _node = document.createElement("LI"); 
     let _textNode = document.createTextNode(_text);
@@ -389,17 +334,17 @@ function UpdateTicker(_class, _text, _colour)
         }
     }
 
-    document.getElementById(_class + "tickertext").appendChild(_node);
+    document.getElementById(_character + "tickertext").appendChild(_node);
 
-    document.getElementById(_class + "ticker").scrollTop = document.getElementById(_class + "ticker").scrollHeight; //scrolls to the top when adding a new element
+    document.getElementById(_character + "ticker").scrollTop = document.getElementById(_character + "ticker").scrollHeight; //scrolls to the top when adding a new element
 
-    if (global[_class].tickerLength < 100) //limit the size of ticker. Crude implementation using a counter
+    if (global[_character].tickerLength < 100) //limit the size of ticker. Crude implementation using a counter
     {
-        global[_class].tickerLength++;
+        global[_character].tickerLength++;
     }
     else
     {
-        document.getElementById(_class + "tickertext").removeChild(document.getElementById(_class + "tickertext").children[0]);
+        document.getElementById(_character + "tickertext").removeChild(document.getElementById(_character + "tickertext").children[0]);
     }
 }
 
@@ -414,8 +359,8 @@ function GrowthCurve(_growthType, _level) //returns the value to be USED
 {
     switch (_growthType)
     {
-        case "attribute": //linear growth
-            return (_level * 100) + 100; // 0 - 100, 1 - 200, 2 - 300
+        case "experience": //linear growth
+            return (_level * 1000) - 1000; // 1 - 1000, 2 - 2000, 3 - 3000
     }
 }
 
@@ -426,9 +371,9 @@ String.prototype.capitalize = function() //used to capitalise the first letter o
 
 //DEV FUNCTIONS
 
-function DevIncreaseStrengthXpFighter()
+function DevIncreaseXpCharacter0()
 {
-    data.fighter.attributes.strength.xp = data.fighter.attributes.strength.xp + 99;
+    data.character0.xp = data.character0.xp + 950;
 
-    UpdatePercentWidth((data.fighter.class + data.fighter.attributes.strength.name + "xpprogress"), data.fighter.attributes.strength.xp, data.fighter.attributes.strength.xpToLevel);
+    UpdatePercentWidth(("character0levelxpprogress"), data.character0.xp, data.character0.xpToLevel);
 }
