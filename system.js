@@ -4,7 +4,7 @@ var data = { //saved between sessions
 
     flag: Array(100).fill(0),
 
-    character0: new Character ("fighter", "", "", 8),
+    character0: new Character ("", "", "", 8),
 }
 
 var global = { //only used in this session
