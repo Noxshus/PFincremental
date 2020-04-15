@@ -1,10 +1,13 @@
 var data = { //saved between sessions
+    state: "newgame", //
     money: [0, 0, 0, 0], //copper, silver, gold, platinum
     event: [], //used to bank events, which the player can access at their discretion
 
     flag: Array(100).fill(0),
 
-    character0: new Character ("", "", "", 8),
+    partySize: 1, //maximum size of the party
+
+    character0: new Character (),
 }
 
 var global = { //only used in this session
@@ -17,22 +20,31 @@ window.onload = function()
 {
     Update("character0weaponname", data.character0.weapon.name);
     UpdateToolTipWeapon("character0weapontooltip", "character0");
+
+    if (data.state == "newgame")
+    {
+        BuildAncestryButtons("character0");
+    }
     
 }
 
-function Character(_class, _ancestry, _background, _health)
+function Character()
 {
-    this.class = _class;
+    this.class = "Unknown";
     this.level = 1;
     this.xp = 0;
     this.xpToLevel = 1000;
-    this.ancestry = _ancestry;
-    this.background = _background;
-    this.healthMax = _health; //should be dictated by ANCESTRY
-    this.health = _health;
+    this.ancestry = "Unknown";
+    this.size = "Unknown";
+    this.speed = 0; //in feet
+    this.traits = [];
+    this.feats = [];
+    this.background = "Unknown";
+    this.healthMax = 0;
+    this.health = 0;
     this.attributes = new CharacterAttributes();
     this.skills = new CharacterSkills();
-    this.restQuality = 1; //this should be dictated by accomodation
+    //this.restQuality = 1; //this should be dictated by accomodation
     this.weapon = new Weapon();
     this.armour = new Armour();
     //this.skillold(_acrobatics, _arcana, _athletics, _crafting, _deception, _diplomacy, _intimidation, _lore, _medicine, _nature, _occultisim, _performance, _religion, _society, _stealth, _survival, _thievery)
@@ -63,7 +75,7 @@ function CharacterSkills()
     this.deception = new Skill("deception");
     this.diplomacy = new Skill("diplomacy");
     this.intimidation = new Skill("intimidation");
-    this.lore = new Skill("lore");
+    this.lore = []; //Lore functions differently - can have several different kinds of lore. Push objects of type Skill() to it.
     this.medicine = new Skill("medicine");
     this.nature = new Skill("nature");
     this.occultisim = new Skill("occultisim");
@@ -100,6 +112,11 @@ function GlobalCharacter() //used to consolidate some attributes, used only in t
 {
     this.tickerLength = 0;
     this.task = 0;
+    //0 - 5: _strength, _dexterity, _constitution, _intelligence, _wisdom, _charisma
+    this.abilityBoosts = Array(6).fill(0); //used during character creation to keep track of ability boosts & flaws
+    this.abilityFlaws = Array(6).fill(0);
+    this.freeAbilityBoosts = 0;
+    this.freeSkillTraining = 0; //The PF rules state that skill training doesn't stack - the player can opt to choose training in any other skill instead
 }
 
 /*function GainAttributeExperience(_character, _attribute, _xpGained)
@@ -255,23 +272,33 @@ function RollD100(_numberOfRolls) //for percentiles - this was traditionally don
     }
 }
 
-/* //Build HTML Functions
+//Build HTML Functions
 
-function BuildButton(_class, _buttonOnClickFunction, _buttonText)
+function BuildText(_character, _text, _location)
+{
+    let _newText = document.createElement("DIV");
+    _newText.innerHTML = _text;
+
+    document.getElementById(_character + _location).appendChild(_newText);
+}
+
+function BuildButton(_character, _buttonOnClickFunction, _buttonText, _id)
 {
     let _button = document.createElement("BUTTON");
+    _button.setAttribute("id", _id);
     _button.setAttribute("data-toggle", "tooltip");
     _button.setAttribute("data-html", "true");
+    //_button.setAttribute("rel", "tooltip");
     _button.type = "button";
-    element.classList.add("btn " + _class + "text");
-    _button.onclick = _buttonOnClickFunction;
+    _button.classList.add("btn");
+    _button.classList.add("btn-light");
+    _button.setAttribute("onclick",_buttonOnClickFunction);
     _button.innerHTML = _buttonText;
     
-
-    document.getElementById(_class + "buttons").appendChild(_button);
+    document.getElementById(_character + "buttons").appendChild(_button);
 
     //button data-toggle="tooltip" data-html="true" title="<div style='font-style:italic;'>+stamina</div>Take a load off and recover your stamina." type="button" class="btn fightertext" onclick="FighterTask('Rest(&quot;fighter&quot;)')">Rest</button>
-}*/
+}
 
 //Update HTML Functions
 
@@ -286,11 +313,33 @@ function UpdatePercentWidth(_id, _numerator, _denominator) //used by progress ba
     document.getElementById(_id).style.width = _percent + "%";
 }
 
-/*function UpdateToolTipButton(_id, _cost, _description)
+/*function UpdateToolTipButton(_id, _content)
 {
-    document.getElementById(_id).setAttribute("data-original-title", 
-    _content);
+    document.getElementById(_id).setAttribute("data-original-title", _content);
 }*/
+
+function UpdateToolTipAncestryButton(_id, _ancestry, _health, _size, _speed, _abilityBoosts, _abilityFlaws, _traits, _feats)
+{
+    document.getElementById(_id).setAttribute("data-original-title",
+        "<b>Ancestry: </b>" + _ancestry + "<br>" +
+        "<b>Hit Points: </b>" + _health + "<br>" +
+        "<b>Size: </b>" + _size + "<br>" +
+        "<b>Speed: </b>" + 25 + " Feet" + "<br>" +
+        "<b> Ability Boosts: </b>" + _abilityBoosts + "<br>" +
+        "<b> Ability Flaws: </b>" + _abilityFlaws + "<br>" +
+        "<b>Traits: </b>" + _traits + "<br>" +
+        "<b>Feats: </b>" + _feats
+    );
+}
+
+function UpdateFeats(_character, _featText, _newId)
+{
+    let _feat = document.createElement("DIV");
+    _feat.innerHTML = _featText;
+    _feat.setAttribute("id", _newId);
+
+    document.getElementById(_character + "feats").appendChild(_feat);
+}
 
 function UpdateToolTipWeapon(_id, _character) //more specific, used to update weapon tool tips as they're generally more complex
 {
@@ -367,6 +416,16 @@ function GrowthCurve(_growthType, _level) //returns the value to be USED
 String.prototype.capitalize = function() //used to capitalise the first letter of a string
 { //https://stackoverflow.com/questions/1026069/how-do-i-make-the-first-letter-of-a-string-uppercase-in-javascript
     return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
+function ChangeLoreTraining (_character, _name, _trainingLevel) //uses the 'name' attribute to find the correct element & replaces it
+{ //https://stackoverflow.com/questions/12462318/find-a-value-in-an-array-of-objects-in-javascript
+    let obj = data[_character].skills.lore.find((o, i) => {
+        if (o.name === _name) {
+            data[_character].skills.lore[i] = { name: _name, level: _trainingLevel};
+            return true; // stop searching
+        }
+    });
 }
 
 //DEV FUNCTIONS

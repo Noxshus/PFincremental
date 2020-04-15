@@ -12,6 +12,10 @@ hr {
     border-color: #4B515D;
 }
 
+button {
+    margin: 2px;
+}
+
 .container { /*removing bootstrap defaults*/
     margin: 0px !important;
 }
@@ -66,4 +70,13 @@ hr {
 .character0text {
     color: #f7f7f7;
     background-color: #795548;
+}
+
+#charactertabs .newcharactertext.active {
+    background-color: #aed581;
+}
+
+.newcharactertext {
+    color: #f7f7f7;
+    background-color: #8bc34a;
 }

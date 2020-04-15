@@ -11,12 +11,21 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src="system.js"></script>
     <script src="events.js"></script>
-
+    <script src="newcharacter.js"></script>
     <script>
-        $(function () 
-        {
-            $('[data-toggle="tooltip"]').tooltip()
-        })
+        $(document).ready(function(){
+            $(function () 
+            {
+                $('[data-toggle="tooltip"]').tooltip() 
+            });
+
+            $(function () //for some reason, bootstrap doesn't assume tooltips should close on a click
+            {
+                $('[data-toggle="tooltip"]').on('click', function () { 
+                    $(this).tooltip('hide')
+                });
+            });
+        });
     </script>
 </head>
 
@@ -48,85 +57,110 @@
         </div>
     </div>
 
-    <ul class="nav nav-tabs justify-content-center" id="charactertabs">
+    <ul class="nav nav-tabs justify-content-center" id="globaltabs"> <!-- First set of tabs -->
         <li class="nav-item">
-            <a class="nav-link active character1text" data-toggle="tab" href="#character0tab">Nobody</a>
+            <a class="nav-link active" data-toggle="tab" href="#charactertab">Characters</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#character1tab">Link 2</a>
+            <a class="nav-link" data-toggle="tab" href="#tab2">Link 2</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#character2tab">Link 3</a>
+            <a class="nav-link" data-toggle="tab" href="#tab3">Link 3</a>
         </li>
     </ul>
 
     <div class="tab-content">
-        <div class="tab-pane container-fluid fade show active" id="character0tab">
+        <div class="tab-pane container-fluid fade show active" id="charactertab"> <!-- Character tabs -->
 
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-2"> <!--Character Sheet-->                      
-                        <h4>Character</h4>
-                        <div>Class: <span id="character0class">None</span></div>                     
-                        <div>Ancestry: <span id="character0ancestry">Unknown</span></div>
-                        <div>Level: <span id="character0level">0</span></div>
-                        <div class="progress experience">
-                            <div class="progress-bar experience" id="character0levelxpprogress"></div>
-                        </div>
-                        <div>Health: <span id="character0healthtext">8</span> / <span id="character0healthmaxtext">8</span></div>
-                        <div class="progress health">
-                            <div class="progress-bar health" id="character0health" style="width: 100%;"></div>
-                        </div>
-                        <hr>
-                        <h4>Attributes</h4>
-                        <div>Strength: <span id="character0strength">10</span></div>
-                        <div>Dexterity: <span id="character0dexterity">10</span></div>
-                        <div>Constitution: <span id="character0constitution">10</span></div>
-                        <div>Intelligence: <span id="character0intelligence">10</span></div>
-                        <div>Wisdom: <span id="character0wisdom">10</span></div>
-                        <div>Charisma: <span id="character0charisma">10</span></div>
-                        <hr>
-                        <h4>Skills</h4>
-                        <div>Acrobatics: <span id="character0acrobatics">Untrained</span></div>
-                        <div>Arcana: <span id="character0arcana">Untrained</span></div>
-                        <div>Athletics: <span id="character0athletics">Untrained</span></div>
-                        <div>Crafting: <span id="character0crafting">Untrained</span></div>
-                        <div>Deception: <span id="character0deception">Untrained</span></div>
-                        <div>Diplomacy: <span id="character0diplomacy">Untrained</span></div>
-                        <div>Intimidation: <span id="character0intimidation">Untrained</span></div>
-                        <div>Lore: <span id="character0lore">Untrained</span></div>
-                        <div>Medicine: <span id="character0medicine">Untrained</span></div>
-                        <div>Nature: <span id="character0nature">Untrained</span></div>
-                        <div>Occultism: <span id="character0occultism">Untrained</span></div>
-                        <div>Performance: <span id="character0performance">Untrained</span></div>
-                        <div>Religion: <span id="character0religion">Untrained</span></div>
-                        <div>Society: <span id="character0society">Untrained</span></div>
-                        <div>Stealth: <span id="character0stealth">Untrained</span></div>
-                        <div>Survival: <span id="character0survival">Untrained</span></div>
-                        <div>Thievery: <span id="character0thievery">Untrained</span></div>
-                    </div>
-                    <div id="character0buttons" class="col"> <!--Buttons & Ticker-->
-                        <button id="character0buttonrest" data-toggle="tooltip" data-html="true" title="<i>Example</i><br>Does nothing at the moment." type="button" class="btn character0text" onclick="">Rest</button>
-                        <button type="button" class="btn character0text" onclick="DevIncreaseXpCharacter0()">DEV: +XP</button>
-                    </div>
-                    <div class="col-3">
-                        <div id="character0ticker" class="tickerv-wrap">
-                            <ul id="character0tickertext">
-                                <li>Test.</li>
-                            </ul>
-                        </div>
-                        <hr>
-                        <h4>Equipment</h4>
-                        <div>
-                            <div id="character0weapontooltip" data-toggle="tooltip" data-html="true" data-placement="left" data-original-title="test<br>test">Weapon: <span id="character0weaponname">None</span></div>
-                            <div>Armour: <span id="character0armour">None</span></div>
+            <ul class="nav nav-tabs justify-content-center" id="charactertabs">
+                <li class="nav-item">
+                    <a class="nav-link active newcharactertext" data-toggle="tab" href="#character0tab">Create a New Character</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#character1tab">Link 2</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#character2tab">Link 3</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane container-fluid fade show active" id="character0tab">
+
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-2"> <!--Character Sheet-->                      
+                                <h4>Character</h4>
+                                <div>Class: <span id="character0class">None</span></div>                     
+                                <div>Ancestry: <span id="character0ancestry">Unknown</span></div>
+                                <div>Level: <span id="character0level">0</span></div>
+                                <div class="progress experience">
+                                    <div class="progress-bar experience" id="character0levelxpprogress"></div>
+                                </div>
+                                <div>Health: <span id="character0healthtext">0</span> / <span id="character0healthmaxtext">0</span></div>
+                                <div class="progress health">
+                                    <div class="progress-bar health" id="character0health"></div>
+                                </div>
+                                <hr>
+                                <h4>Attributes</h4>
+                                <div>Strength: <span id="character0strength">10</span></div>
+                                <div>Dexterity: <span id="character0dexterity">10</span></div>
+                                <div>Constitution: <span id="character0constitution">10</span></div>
+                                <div>Intelligence: <span id="character0intelligence">10</span></div>
+                                <div>Wisdom: <span id="character0wisdom">10</span></div>
+                                <div>Charisma: <span id="character0charisma">10</span></div>
+                                <hr>
+                                <h4>Skills</h4>
+                                <div>Acrobatics: <span id="character0acrobatics">Untrained</span></div>
+                                <div>Arcana: <span id="character0arcana">Untrained</span></div>
+                                <div>Athletics: <span id="character0athletics">Untrained</span></div>
+                                <div>Crafting: <span id="character0crafting">Untrained</span></div>
+                                <div>Deception: <span id="character0deception">Untrained</span></div>
+                                <div>Diplomacy: <span id="character0diplomacy">Untrained</span></div>
+                                <div>Intimidation: <span id="character0intimidation">Untrained</span></div>
+                                <div>Lore: <span id="character0lore">Hover To View</span></div>
+                                <div>Medicine: <span id="character0medicine">Untrained</span></div>
+                                <div>Nature: <span id="character0nature">Untrained</span></div>
+                                <div>Occultism: <span id="character0occultism">Untrained</span></div>
+                                <div>Performance: <span id="character0performance">Untrained</span></div>
+                                <div>Religion: <span id="character0religion">Untrained</span></div>
+                                <div>Society: <span id="character0society">Untrained</span></div>
+                                <div>Stealth: <span id="character0stealth">Untrained</span></div>
+                                <div>Survival: <span id="character0survival">Untrained</span></div>
+                                <div>Thievery: <span id="character0thievery">Untrained</span></div>
+                                <hr>
+                                <h4>Feats</h4>
+                                <div id="character0feats">
+                                </div>
+                            </div>
+                            <div id="character0buttons" class="col"> <!--Buttons & Ticker-->
+                                <button id="character0buttonrest" data-toggle="tooltip" data-html="true" title="<i>Example</i><br>Does nothing at the moment." type="button" class="btn character0text" onclick="">Rest</button>
+                                <button type="button" class="btn character0text" onclick="DevIncreaseXpCharacter0()">DEV: +XP</button>
+                            </div>
+                            <div class="col-3">
+                                <div id="character0ticker" class="tickerv-wrap">
+                                    <ul id="character0tickertext">
+                                        <li>Test.</li>
+                                    </ul>
+                                </div>
+                                <hr>
+                                <h4>Equipment</h4>
+                                <div>
+                                    <div id="character0weapontooltip" data-toggle="tooltip" data-html="true" data-placement="left" data-original-title="test<br>test">Weapon: <span id="character0weaponname">None</span></div>
+                                    <div>Armour: <span id="character0armour">None</span></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div class="tab-pane container fade" id="character1tab">Unused</div>
+                <div class="tab-pane container fade" id="character2tab">Unused</div>
             </div>
         </div>
-        <div class="tab-pane container fade" id="character1tab">test2</div>
-        <div class="tab-pane container fade" id="character2tab"></div>
+
+        <div class="tab-pane container fade" id="tab2">Dungeon?</div>
+        <div class="tab-pane container fade" id="tab3">Prestige?</div>
+
     </div>
 </body>
 </html>
