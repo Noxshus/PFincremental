@@ -113,8 +113,8 @@ function GlobalCharacter() //used to consolidate some attributes, used only in t
     this.tickerLength = 0;
     this.task = 0;
     //0 - 5: _strength, _dexterity, _constitution, _intelligence, _wisdom, _charisma
-    this.abilityBoosts = Array(6).fill(0); //used during character creation to keep track of ability boosts & flaws
-    this.abilityFlaws = Array(6).fill(0);
+    //this.abilityBoosts = Array(6).fill(0); //used during character creation to keep track of ability boosts & flaws
+    //this.abilityFlaws = Array(6).fill(0);
     this.freeAbilityBoosts = 0;
     this.freeSkillTraining = 0; //The PF rules state that skill training doesn't stack - the player can opt to choose training in any other skill instead
 }
@@ -302,6 +302,23 @@ function BuildButton(_character, _buttonOnClickFunction, _buttonText, _id)
 
 //Update HTML Functions
 
+function EnableTooltips() //Need to re-enable bootstrap tooltips each time.........
+{
+    $(document).ready(function(){
+        $(function () 
+        {
+            $('[data-toggle="tooltip"]').tooltip() 
+        });
+
+        $(function () //for some reason, bootstrap doesn't assume tooltips should close on a click
+        {
+            $('[data-toggle="tooltip"]').on('click', function () { 
+                $(this).tooltip('hide')
+            });
+        });
+    });
+}
+
 function Update(_id, _content) 
 {
     document.getElementById(_id).innerHTML = _content;
@@ -313,21 +330,36 @@ function UpdatePercentWidth(_id, _numerator, _denominator) //used by progress ba
     document.getElementById(_id).style.width = _percent + "%";
 }
 
-/*function UpdateToolTipButton(_id, _content)
+function UpdateToolTipButton(_id, _content)
 {
+    EnableTooltips();
     document.getElementById(_id).setAttribute("data-original-title", _content);
-}*/
+}
 
 function UpdateToolTipAncestryButton(_id, _ancestry, _health, _size, _speed, _abilityBoosts, _abilityFlaws, _traits, _feats)
 {
+    EnableTooltips();
     document.getElementById(_id).setAttribute("data-original-title",
         "<b>Ancestry: </b>" + _ancestry + "<br>" +
         "<b>Hit Points: </b>" + _health + "<br>" +
         "<b>Size: </b>" + _size + "<br>" +
         "<b>Speed: </b>" + 25 + " Feet" + "<br>" +
-        "<b> Ability Boosts: </b>" + _abilityBoosts + "<br>" +
-        "<b> Ability Flaws: </b>" + _abilityFlaws + "<br>" +
+        "<b>Ability Boosts: </b>" + _abilityBoosts + "<br>" +
+        "<b>Ability Flaws: </b>" + _abilityFlaws + "<br>" +
         "<b>Traits: </b>" + _traits + "<br>" +
+        "<b>Feats: </b>" + _feats
+    );
+}
+
+function UpdateToolTipBackgroundButton(_id, _background, _optionalBoost1, _optionalBoost2, _abilityBoosts, _skill, _lore, _feats)
+{
+    EnableTooltips();
+    document.getElementById(_id).setAttribute("data-original-title",
+        "<b>Background: </b>" + _background + "<br>" + 
+        "<b>Ability Boost In Either: </b>" + _optionalBoost1 + " or " + _optionalBoost2 + "<br>" +
+        "<b>Ability Boosts: </b>" + _abilityBoosts + "<br>" +
+        "<b>Skill Training: </b>" + _skill + "<br>" +
+        "<b>Lore Skill Training: </b>" + _lore + "<br>" +
         "<b>Feats: </b>" + _feats
     );
 }
